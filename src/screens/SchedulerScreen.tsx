@@ -1,7 +1,14 @@
 import { useState, useEffect } from "react";
 import { MeetingData } from "../components/Meetings/MeetingData";
 import { SessionsTable } from "../components/Session/SessionsTable";
-import { Container, MeetingContainer, MeetingsTitle, SessionContainer, Title, UnscheduledMeetings } from "./SchedulerScreenStyles";
+import {
+  Container,
+  MeetingContainer,
+  MeetingsTitle,
+  SessionContainer,
+  Title,
+  UnscheduledMeetings,
+} from "./SchedulerScreenStyles";
 import { Meeting, Session } from "../types";
 
 const SESSIONS = [
@@ -29,25 +36,31 @@ const SESSIONS = [
   },
 ];
 
-
 export const SchedulerScreen = () => {
   const [meetings, setMeetings] = useState<Array<Meeting>>();
-  const [sessions, setSessions] = useState<Array<Session>>(SESSIONS)
+  const [sessions, setSessions] = useState<Array<Session>>(SESSIONS);
 
   useEffect(() => {
-    fetch('https://admin.b2match.com/api/scheduler/events/14192/scheduler/meetings').then((response) => {
-      return response.json();
-    }).then((data: Array<Meeting>) => {
-      setMeetings(data);
-    })
+    fetch(
+      "https://admin.b2match.com/api/scheduler/events/14192/scheduler/meetings",
+    )
+      .then((response) => {
+        return response.json();
+      })
+      .then((data: Array<Meeting>) => {
+        setMeetings(data);
+      });
 
-    fetch('https://admin.b2match.com/api/scheduler/events/14192/scheduler/sessions').then((response) => {
-      return response.json();
-    }).then((data: Array<Session>) => {
-      setSessions(data)
-    })
-
-  }, [])
+    fetch(
+      "https://admin.b2match.com/api/scheduler/events/14192/scheduler/sessions",
+    )
+      .then((response) => {
+        return response.json();
+      })
+      .then((data: Array<Session>) => {
+        setSessions(data);
+      });
+  }, []);
 
   return (
     <Container>
@@ -58,9 +71,10 @@ export const SchedulerScreen = () => {
           <MeetingsTitle>Unscheduled meetings</MeetingsTitle>
 
           <UnscheduledMeetings>
-            {meetings.length > 0 && meetings.map((meeting, idx) => (
-              <MeetingData key={idx} meeting={meeting} />
-            ))}
+            {meetings.length > 0 &&
+              meetings.map((meeting, idx) => (
+                <MeetingData key={idx} meeting={meeting} />
+              ))}
 
             <MeetingData key={meetings[1].id} meeting={meetings[1]} />
             <MeetingData key={meetings[2].id} meeting={meetings[2]} />
@@ -71,9 +85,8 @@ export const SchedulerScreen = () => {
 
       {sessions && (
         <SessionContainer>
-          {sessions.length > 0 && sessions.map((session, idx) => (
-            <SessionsTable key={idx} />
-          ))}
+          {sessions.length > 0 &&
+            sessions.map((session, idx) => <SessionsTable key={idx} />)}
         </SessionContainer>
       )}
     </Container>

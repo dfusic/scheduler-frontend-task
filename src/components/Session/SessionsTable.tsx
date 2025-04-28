@@ -38,7 +38,7 @@ export const SessionsTable = () => {
           month: "short",
           day: "2-digit",
         })}, ${getFormattedTime(beginDate)}-${getFormattedTime(
-          endDate
+          endDate,
         )}`}</SessionTitle>
 
         <table style={{ borderCollapse: "collapse" }}>
