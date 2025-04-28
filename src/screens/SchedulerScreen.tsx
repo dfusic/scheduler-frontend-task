@@ -1,7 +1,8 @@
-import React from "react";
-import { styled } from "styled-components";
+import { useState, useEffect } from "react";
 import { MeetingData } from "../components/Meetings/MeetingData";
 import { SessionsTable } from "../components/Session/SessionsTable";
+import { Container, MeetingContainer, MeetingsTitle, SessionContainer, Title, UnscheduledMeetings } from "./SchedulerScreenStyles";
+import { Meeting, Session } from "../types";
 
 const SESSIONS = [
   {
@@ -28,116 +29,53 @@ const SESSIONS = [
   },
 ];
 
-const MEETINGS = [
-  {
-    id: 11,
-    status: "accepted",
-    host_id: 59,
-    guest_id: 21,
-    host_eid: 49,
-    guest_eid: 11,
-    session: null,
-    timeslot: null,
-    table: null,
-    booth_id: null,
-    locked: false,
-    fixed_table: null,
-    valid: 0,
-  },
-  {
-    id: 12,
-    status: "accepted",
-    host_id: 52,
-    guest_id: 25,
-    host_eid: 42,
-    guest_eid: 15,
-    session: null,
-    timeslot: null,
-    table: null,
-    booth_id: null,
-    locked: false,
-    fixed_table: null,
-    valid: 0,
-  },
-  {
-    id: 13,
-    status: "accepted",
-    host_id: 21,
-    guest_id: 29,
-    host_eid: 11,
-    guest_eid: 19,
-    session: null,
-    timeslot: null,
-    table: null,
-    booth_id: null,
-    locked: false,
-    fixed_table: null,
-    valid: 0,
-  },
-];
-
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  padding: 0 120px;
-`;
-
-const SessionContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  margin-top: 24px;
-  gap: 48px;
-  flex-wrap: wrap;
-`;
-
-const MeetingContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: baseline;
-`;
-
-const Title = styled.p`
-  font-weight: 600;
-  font-size: 32px;
-  text-align: start;
-`;
-
-const MeetingsTitle = styled.p`
-  font-weight: 600;
-  font-size: 18px;
-`;
-
-const UnscheduledMeetings = styled.div`
-  display: flex;
-  gap: 12px;
-`;
 
 export const SchedulerScreen = () => {
-  // use real data
-  const sessions = SESSIONS;
-  const meetings = MEETINGS;
+  const [meetings, setMeetings] = useState<Array<Meeting>>();
+  const [sessions, setSessions] = useState<Array<Session>>(SESSIONS)
+
+  useEffect(() => {
+    fetch('https://admin.b2match.com/api/scheduler/events/14192/scheduler/meetings').then((response) => {
+      return response.json();
+    }).then((data: Array<Meeting>) => {
+      setMeetings(data);
+    })
+
+    fetch('https://admin.b2match.com/api/scheduler/events/14192/scheduler/sessions').then((response) => {
+      return response.json();
+    }).then((data: Array<Session>) => {
+      setSessions(data)
+    })
+
+  }, [])
 
   return (
     <Container>
       <Title>Meeting scheduler</Title>
 
-      <MeetingContainer>
-        <MeetingsTitle>Unscheduled meetings</MeetingsTitle>
+      {meetings && (
+        <MeetingContainer>
+          <MeetingsTitle>Unscheduled meetings</MeetingsTitle>
 
-        <UnscheduledMeetings>
-          <MeetingData key={meetings[0].id} meeting={meetings[0]} />
-          <MeetingData key={meetings[1].id} meeting={meetings[1]} />
-          <MeetingData key={meetings[2].id} meeting={meetings[2]} />
-        </UnscheduledMeetings>
+          <UnscheduledMeetings>
+            {meetings.length > 0 && meetings.map((meeting, idx) => (
+              <MeetingData key={idx} meeting={meeting} />
+            ))}
 
-        {/* use real data */}
-        <p>{`You have ${meetings.length} meetings left to schedule`}</p>
-      </MeetingContainer>
+            <MeetingData key={meetings[1].id} meeting={meetings[1]} />
+            <MeetingData key={meetings[2].id} meeting={meetings[2]} />
+          </UnscheduledMeetings>
+          <p>{`You have ${meetings.length} meetings left to schedule`}</p>
+        </MeetingContainer>
+      )}
 
-      <SessionContainer>
-        <SessionsTable key={sessions[0].id} />
-        <SessionsTable key={sessions[1].id} />
-      </SessionContainer>
+      {sessions && (
+        <SessionContainer>
+          {sessions.length > 0 && sessions.map((session, idx) => (
+            <SessionsTable key={idx} />
+          ))}
+        </SessionContainer>
+      )}
     </Container>
   );
 };
